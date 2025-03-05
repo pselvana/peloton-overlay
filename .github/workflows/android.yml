@@ -22,10 +22,12 @@ jobs:
         
     - name: Decode keystore and set up environment variables
       run: |
-        echo "$KEYSTORE_FILE" | base64 --decode > $HOME/my-release-key.keystore
+        echo "$KEYSTORE_FILE" | base64 --decode --ignore-garbage > $HOME/my-release-key.keystore
         echo "KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD" >> $GITHUB_ENV
         echo "KEY_ALIAS=$KEY_ALIAS" >> $GITHUB_ENV
         echo "KEY_PASSWORD=$KEY_PASSWORD" >> $GITHUB_ENV
+        ls -l $HOME/my-release-key.keystore
+        
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
