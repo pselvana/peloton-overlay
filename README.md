@@ -1,7 +1,7 @@
  <h1>grupetto: workout data for Gen 2 Peloton Bikes <img width="60" align="left" alt="Dougmeister" src="https://user-images.githubusercontent.com/17497673/192138426-4d96996a-738e-43a2-895e-4204ca11ed6d.png">
 </h1>
 
-&nbsp;
+&nbsp; &nbsp;
 
 **grupetto** is an app that creates a system-wide overlay with live statistics about your ride:
 
