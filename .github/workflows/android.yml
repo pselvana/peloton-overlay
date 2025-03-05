@@ -19,7 +19,9 @@ jobs:
         java-version: '11'
         distribution: 'temurin'
         cache: gradle
-        
+
+    - name: Debug KEystore secret
+      run: echo "$KEYSTORE_FILE"
     - name: Decode keystore and set up environment variables
       run: |
         echo "$KEYSTORE_FILE" | base64 --decode --ignore-garbage > $HOME/my-release-key.keystore
