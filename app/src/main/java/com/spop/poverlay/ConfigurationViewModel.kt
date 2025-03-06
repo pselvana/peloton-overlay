@@ -58,6 +58,13 @@ class ConfigurationViewModel(
         finishActivity.value = Unit
     }
 
+    fun onStopServiceClicked() {
+        Timber.i("Stopping service")
+        val intent = Intent(getApplication(), OverlayService::class.java)
+        getApplication().stopService(intent)
+        finishActivity.value = Unit
+    }
+
     fun onGrantPermissionClicked() {
         requestOverlayPermission.value = Unit
     }

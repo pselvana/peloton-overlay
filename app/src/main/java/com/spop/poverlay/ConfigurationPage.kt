@@ -48,6 +48,7 @@ fun ConfigurationPage(
                 timerShownWhenMinimized,
                 viewModel::onShowTimerWhenMinimizedClicked,
                 viewModel::onStartServiceClicked,
+                viewModel::onStopServiceClicked,
                 viewModel::onRestartClicked,
                 viewModel::onClickedRelease,
                 latestRelease
@@ -61,6 +62,7 @@ private fun StartServicePage(
     timerShownWhenMinimized: Boolean,
     onTimerShownWhenMinimizedToggled: (Boolean) -> Unit,
     onClickedStartOverlay: () -> Unit,
+    onClickedStopOverlay: () -> Unit,
     onClickedRestartApp: () -> Unit,
     onClickedRelease: (Release) -> Unit,
     latestRelease: Release?
@@ -88,10 +90,22 @@ private fun StartServicePage(
             fontStyle = FontStyle.Italic,
         )
     }
+    Spacer(modifier = Modifier.height(180.dp))
+    Button(
+        onClick = onClickedStopOverlay,
+    ) {
+        Text(
+            text = "Click here to stop the overlay",
+            fontSize = 30.sp,
+            fontFamily = LatoFontFamily,
+            fontWeight = FontWeight.Bold,
+            fontStyle = FontStyle.Italic,
+        )
+    }
     Spacer(modifier = Modifier.height(100.dp))
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(
-            text = "Show timer when the overlay minimized?",
+            text = "Show timer when the overlay is minimized?",
             fontSize = 20.sp
         )
         Checkbox(
