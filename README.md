@@ -41,9 +41,25 @@ sideload an APK.
 
 After following those steps, the APK for grupetto can be found on the Releases tab above.
 
+[Youtube instructions](https://www.youtube.com/watch?v=O8Vq-JK1um8)
+
+Note: Gen 2 tablets might have additional hurdles solved by this when trying to authorize ADB connections:
+```
+@blairkenvin
+Just as a heads up, it looks like there's another barrier that must've gotten added with a recent update.
+When attempting to enable USB debugging I was getting an error message saying
+"Because an app is obscuring a permission request, Settings can't verify your response".
+In order to fix this, just go into Settings->Device Settings->Apps, click the gear in the top-right,
+then go to Special Access->Draw over other apps, then unselect both apps that are checked.
+You can then reconnect your USB cable, and enable USB debugging.
+Make sure you check 'remember this device', and then immediately check both of the apps again.
+After that you can then install any apps you want :)
+```
+
 Note: Unfortunately, sideloading functionality was recently locked behind a valid subscription. At
 the time of writing, once the overlay has been installed its continued function is not tied to a
-subscription. (this is subject to change)
+subscription. (this is subject to change).  A factory reset *may* enable the functionality; it may
+also be available after the first update completes and before the bike is shutdown.
 
 # Usage
 
