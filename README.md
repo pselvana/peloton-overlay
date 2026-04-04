@@ -22,6 +22,7 @@ your repository
 ---
 
 - [Installation](#installation)
+- [Local Development](#local-development)
 - [Usage](#usage)
 - [Implementation](#implementation)
     * [Getting access to sensor data](#getting-access-to-sensor-data)
@@ -60,6 +61,66 @@ Note: Unfortunately, sideloading functionality was recently locked behind a vali
 the time of writing, once the overlay has been installed its continued function is not tied to a
 subscription. (this is subject to change).  A factory reset *may* enable the functionality; it may
 also be available after the first update completes and before the bike is shutdown.
+
+# Local Development
+
+The app can be built and run on a standard Android emulator without any Peloton hardware. When not running on a Peloton device, it automatically uses a built-in `DummySensorInterface` that generates synthetic sine-wave data (~200W power, ~150 RPM cadence, ~110 resistance), so the full UI can be exercised locally.
+
+## Prerequisites
+
+### 1. Android Studio
+Download and install [Android Studio](https://developer.android.com/studio). It includes the Android SDK, emulator, and build tools. On first open, it will prompt you to install any missing SDK components.
+
+### 2. JDK 11
+The project requires JDK 11. Check your version with `java -version`.
+
+- **macOS (Homebrew):** `brew install temurin@11`
+- **Other:** Download from [Adoptium](https://adoptium.net/)
+
+After installing, configure Android Studio to use it:
+**Preferences → Build, Execution, Deployment → Build Tools → Gradle → Gradle JDK** → select JDK 11
+
+### 3. Android SDK Components
+Install these via **Android Studio → SDK Manager**:
+- **SDK Platform:** API 33 (Android 13)
+- **Build Tools:** 33.x.x
+- **Android Emulator** + system image for API 33
+
+> Minimum supported API is 24 (Android 7.0), so any emulator image API 24+ will work, though API 33 is recommended.
+
+## Build & Run
+
+### Open the project
+Open the project root in Android Studio and wait for Gradle sync to complete. All library dependencies are downloaded automatically — no manual installation needed. The Gradle 7.5 wrapper (`gradlew`) is included, so no separate Gradle install is required.
+
+### Create an emulator (AVD)
+1. **Tools → Device Manager → Create Virtual Device**
+2. Select any phone hardware profile (e.g. Pixel 6)
+3. Choose system image: **API 33 (Android 13)** — download it if not already present
+4. Finish and launch the emulator
+
+### Run the app
+- In Android Studio: select the emulator as the target device and click **Run** (▶)
+- Or from the terminal:
+```bash
+./gradlew assembleDebug
+adb install app/build/outputs/apk/debug/app-debug.apk
+```
+
+## Granting the Overlay Permission
+
+`SYSTEM_ALERT_WINDOW` (Draw over other apps) is required for the overlay to function. On first launch the app will redirect you to Android Settings to grant it. Alternatively, grant it via ADB:
+
+```bash
+adb shell appops set com.spop.poverlay SYSTEM_ALERT_WINDOW allow
+```
+
+## Notes
+
+- **No secrets needed for debug builds.** The keystore environment variables (`KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`) are only required for release builds.
+- **Fake sensor data is automatic.** The app checks `Build.BRAND == "Peloton"` at runtime; on any other device or emulator it falls back to `DummySensorInterface` with no configuration needed.
+
+---
 
 # Usage
 
