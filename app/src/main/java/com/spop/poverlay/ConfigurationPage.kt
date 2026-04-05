@@ -2,7 +2,9 @@ package com.spop.poverlay
 
 import android.os.Build
 import android.text.format.DateUtils
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -41,12 +43,22 @@ fun ConfigurationPage(
             PermissionPage(viewModel::onGrantPermissionClicked)
         } else {
             val timerShownWhenMinimized by viewModel.showTimerWhenMinimized
-                .collectAsStateWithLifecycle(
-                    initialValue = true
-                )
+                .collectAsStateWithLifecycle(initialValue = true)
+            val serverUrl by viewModel.serverUrl
+                .collectAsStateWithLifecycle(initialValue = "")
+            val isWebSocketConnected by viewModel.isWebSocketConnected
+                .collectAsStateWithLifecycle(initialValue = false)
+            val webSocketStatus by viewModel.webSocketStatus
+                .collectAsStateWithLifecycle(initialValue = "Disconnected")
             StartServicePage(
                 timerShownWhenMinimized,
                 viewModel::onShowTimerWhenMinimizedClicked,
+                serverUrl,
+                viewModel::onServerUrlChanged,
+                isWebSocketConnected,
+                webSocketStatus,
+                viewModel::onConnectClicked,
+                viewModel::onDisconnectClicked,
                 viewModel::onStartServiceClicked,
                 viewModel::onStopServiceClicked,
                 viewModel::onRestartClicked,
@@ -57,10 +69,17 @@ fun ConfigurationPage(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun StartServicePage(
     timerShownWhenMinimized: Boolean,
     onTimerShownWhenMinimizedToggled: (Boolean) -> Unit,
+    serverUrl: String,
+    onServerUrlChanged: (String) -> Unit,
+    isWebSocketConnected: Boolean,
+    webSocketStatus: String,
+    onConnectClicked: () -> Unit,
+    onDisconnectClicked: () -> Unit,
     onClickedStartOverlay: () -> Unit,
     onClickedStopOverlay: () -> Unit,
     onClickedRestartApp: () -> Unit,
@@ -78,7 +97,7 @@ private fun StartServicePage(
         fontStyle = FontStyle.Italic,
         fontWeight = FontWeight.Bold
     )
-    Spacer(modifier = Modifier.height(180.dp))
+    Spacer(modifier = Modifier.height(20.dp))
     Button(
         onClick = onClickedStartOverlay,
     ) {
@@ -90,7 +109,7 @@ private fun StartServicePage(
             fontStyle = FontStyle.Italic,
         )
     }
-    Spacer(modifier = Modifier.height(180.dp))
+    Spacer(modifier = Modifier.height(20.dp))
     Button(
         onClick = onClickedStopOverlay,
     ) {
@@ -111,6 +130,53 @@ private fun StartServicePage(
         Checkbox(
             checked = timerShownWhenMinimized,
             onCheckedChange = onTimerShownWhenMinimizedToggled
+        )
+    }
+
+    Spacer(modifier = Modifier.height(30.dp))
+
+    Text(
+        text = "Server",
+        fontSize = 22.sp,
+        fontWeight = FontWeight.Bold
+    )
+    Spacer(modifier = Modifier.height(10.dp))
+    OutlinedTextField(
+        value = serverUrl,
+        onValueChange = onServerUrlChanged,
+        label = { Text("WebSocket URL (e.g. ws://192.168.1.1:3000)", fontSize = 16.sp) },
+        placeholder = { Text("Leave blank to disable") },
+        singleLine = true,
+        modifier = Modifier.width(600.dp),
+        textStyle = LocalTextStyle.current.copy(fontSize = 18.sp)
+    )
+    Spacer(modifier = Modifier.height(12.dp))
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+        Button(
+            onClick = onConnectClicked,
+            enabled = !isWebSocketConnected && serverUrl.isNotBlank()
+        ) {
+            Text("Connect", fontSize = 18.sp)
+        }
+        Button(
+            onClick = onDisconnectClicked,
+            enabled = isWebSocketConnected,
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+        ) {
+            Text("Disconnect", fontSize = 18.sp)
+        }
+        Box(
+            modifier = Modifier
+                .size(12.dp)
+                .background(
+                    color = if (isWebSocketConnected) Color(0xFF00C853) else Color(0xFF9E9E9E),
+                    shape = CircleShape
+                )
+        )
+        Text(
+            text = webSocketStatus,
+            fontSize = 16.sp,
+            color = if (isWebSocketConnected) Color(0xFF00C853) else LocalContentColor.current.copy(alpha = 0.6f)
         )
     }
 

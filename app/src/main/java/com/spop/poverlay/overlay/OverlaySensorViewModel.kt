@@ -15,16 +15,19 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 private const val MphToKph = 1.60934
 
 class OverlaySensorViewModel(
     application: Application,
     private val sensorInterface: SensorInterface,
-    private val deadSensorDetector: DeadSensorDetector
+    private val deadSensorDetector: DeadSensorDetector,
+    private val webSocketManager: WebSocketManager
 ) : AndroidViewModel(application) {
 
     companion object {
@@ -34,7 +37,11 @@ class OverlaySensorViewModel(
         // Max number of points before data starts to shift
         const val GraphMaxDataPoints = 300
 
+        // How often sensor data is sent over WebSocket
+        val WebSocketSendPeriod = 1.seconds
     }
+
+    val isWebSocketConnected = webSocketManager.isConnected
 
 
     //TODO: Move this logic to dialog view model
@@ -106,6 +113,23 @@ class OverlaySensorViewModel(
     val powerGraph = mutableStateListOf<Float>()
 
 
+    private fun setupWebSocket() {
+        viewModelScope.launch(Dispatchers.IO) {
+            combine(
+                sensorInterface.power,
+                sensorInterface.cadence,
+                sensorInterface.resistance,
+                sensorInterface.speed
+            ) { power, cadence, resistance, speed ->
+                """{"cadence":${cadence.toInt()},"speed":${"%.1f".format(speed)},"resistance":${resistance.toInt()},"power":${power.toInt()}}"""
+            }
+                .sample(WebSocketSendPeriod)
+                .collect { json ->
+                    webSocketManager.send(json)
+                }
+        }
+    }
+
     private fun setupPowerGraphData() {
         viewModelScope.launch(Dispatchers.IO) {
             //Sensor value is read every tick and added to graph
@@ -126,6 +150,7 @@ class OverlaySensorViewModel(
     // Happens last to ensure initialization order is correct
     init {
         setupPowerGraphData()
+        setupWebSocket()
         viewModelScope.launch(Dispatchers.IO) {
             deadSensorDetector.deadSensorDetected.collect {
                 onDeadSensor()
@@ -141,5 +166,6 @@ class OverlaySensorViewModel(
             }
         }
     }
+
 }
 

@@ -13,6 +13,7 @@ import com.spop.poverlay.overlay.OverlayService
 import com.spop.poverlay.releases.Release
 import com.spop.poverlay.releases.ReleaseChecker
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -33,6 +34,20 @@ class ConfigurationViewModel(
     val showTimerWhenMinimized
         get() = configurationRepository.showTimerWhenMinimized
 
+    val serverUrl
+        get() = configurationRepository.serverUrl
+
+    private val webSocketManager
+        get() = getApplication<GrupettoApplication>().webSocketManager
+
+    val isWebSocketConnected
+        get() = webSocketManager.isConnected
+
+    val webSocketStatus
+        get() = webSocketManager.isConnected.map { connected ->
+            if (connected) "Connected" else "Disconnected"
+        }
+
     init {
         updatePermissionState()
     }
@@ -47,6 +62,21 @@ class ConfigurationViewModel(
 
     fun onShowTimerWhenMinimizedClicked(isChecked: Boolean) {
         configurationRepository.setShowTimerWhenMinimized(isChecked)
+    }
+
+    fun onServerUrlChanged(url: String) {
+        configurationRepository.setServerUrl(url)
+    }
+
+    fun onConnectClicked() {
+        val url = configurationRepository.serverUrl.value
+        if (url.isNotBlank()) {
+            webSocketManager.connect(url)
+        }
+    }
+
+    fun onDisconnectClicked() {
+        webSocketManager.disconnect()
     }
 
     fun onStartServiceClicked() {

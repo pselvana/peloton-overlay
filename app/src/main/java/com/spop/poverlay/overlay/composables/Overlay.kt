@@ -8,6 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Snackbar
@@ -63,6 +64,7 @@ fun Overlay(
     val timerLabel by timerViewModel.timerLabel.collectAsStateWithLifecycle(initialValue = "")
     val isTimerPaused by timerViewModel.timerPaused.collectAsStateWithLifecycle(initialValue = false)
     val errorMessage by sensorViewModel.errorMessage.collectAsStateWithLifecycle(initialValue = null)
+    val isWebSocketConnected by sensorViewModel.isWebSocketConnected.collectAsStateWithLifecycle(initialValue = false)
 
     var isCurrentlyAnimating by remember { mutableStateOf(false) }
 
@@ -195,6 +197,16 @@ fun Overlay(
                 onSpeedClicked = { sensorViewModel.onClickedSpeed() },
                 onChartClicked = { sensorViewModel.onOverlayPressed() }
             )
+
+            if (isWebSocketConnected) {
+                Box(
+                    modifier = Modifier
+                        .padding(top = 5.dp, end = 5.dp)
+                        .size(8.dp)
+                        .align(Alignment.TopEnd)
+                        .background(Color(0xFF00C853), CircleShape)
+                )
+            }
         }
     }
 

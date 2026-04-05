@@ -10,7 +10,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 class ConfigurationRepository(context: Context, lifecycleOwner: LifecycleOwner) : AutoCloseable {
 
     enum class Preferences(val key: String) {
-        ShowTimerWhenMinimized("showTimerWhenMinimized")
+        ShowTimerWhenMinimized("showTimerWhenMinimized"),
+        ServerUrl("serverUrl")
     }
 
     companion object {
@@ -22,8 +23,10 @@ class ConfigurationRepository(context: Context, lifecycleOwner: LifecycleOwner) 
     }
 
     private val mutableShowTimerWhenMinimized = MutableStateFlow(true)
-
     val showTimerWhenMinimized = mutableShowTimerWhenMinimized
+
+    private val mutableServerUrl = MutableStateFlow("")
+    val serverUrl = mutableServerUrl
 
     private val sharedPreferences: SharedPreferences
 
@@ -55,11 +58,17 @@ class ConfigurationRepository(context: Context, lifecycleOwner: LifecycleOwner) 
         }
     }
 
+    fun setServerUrl(url: String) {
+        sharedPreferences.edit {
+            putString(Preferences.ServerUrl.key, url)
+        }
+    }
+
     private fun updateFromSharedPrefs() {
         mutableShowTimerWhenMinimized.value =
-            sharedPreferences
-                .getBoolean(Preferences.ShowTimerWhenMinimized.key, true)
-
+            sharedPreferences.getBoolean(Preferences.ShowTimerWhenMinimized.key, true)
+        mutableServerUrl.value =
+            sharedPreferences.getString(Preferences.ServerUrl.key, "") ?: ""
     }
 
     override fun close() {

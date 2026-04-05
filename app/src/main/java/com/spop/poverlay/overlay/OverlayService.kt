@@ -113,15 +113,18 @@ class OverlayService : LifecycleEnabledService() {
             EmulatorSensorInterface
         }
 
+        val configurationRepository = ConfigurationRepository(applicationContext, this)
+
         val sensorViewModel = OverlaySensorViewModel(
             application,
             sensorInterface,
-            DeadSensorDetector(sensorInterface, this.coroutineContext)
+            DeadSensorDetector(sensorInterface, this.coroutineContext),
+            (application as com.spop.poverlay.GrupettoApplication).webSocketManager
         )
 
         val timerViewModel = OverlayTimerViewModel(
             application,
-            ConfigurationRepository(applicationContext, this)
+            configurationRepository
         )
         val dialogViewModel = OverlayDialogViewModel(screenSize, sensorViewModel.isMinimized)
 
